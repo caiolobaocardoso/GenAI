@@ -5,7 +5,7 @@ from pandasai import Agent
 
 model = LocalLLM(
     api_base="http://localhost:11434/v1",
-    model="qwen2:1.5b" 
+    model="orca-mini:latest" 
 ) 
 
 st.title("Análise de dado usando AI")
