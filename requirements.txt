@@ -2,3 +2,4 @@ pandas
 pandasai
 streamlit
 numpy==1.23.5
+pyyaml
