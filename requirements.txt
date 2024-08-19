@@ -3,3 +3,5 @@ streamlit
 langchain_anthropic
 seaborn
 python-dotenv
+numpy==1.23.5
+openpyxl
