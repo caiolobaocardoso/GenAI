@@ -2,13 +2,12 @@ from pandasai.llm.local_llm import LocalLLM
 import streamlit as st 
 import pandas as pd
 from pandasai import Agent
-from pandasai.llm import OpenAI
-import os
+from pandasai.llm import GoogleVertexAI
+import os   
 
-API_KEY=os.environ.get("API_KEY")
-
-model = OpenAI(api_token=API_KEY)
-
+model = GoogleVertexAI(project_id="poised-renderer-433000-s0",
+                       location="us-central1",
+                       model="text-bison@001")
 
 st.title("Análise de dado usando AI")
 
