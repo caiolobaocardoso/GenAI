@@ -2,11 +2,13 @@ from pandasai.llm.local_llm import LocalLLM
 import streamlit as st 
 import pandas as pd
 from pandasai import Agent
+from pandasai.llm import OpenAI
+import os
 
-model = LocalLLM(
-    api_base="http://localhost:11434/v1",
-    model="orca-mini:latest" 
-) 
+API_KEY=os.environ.get("API_KEY")
+
+model = OpenAI(api_token=API_KEY)
+
 
 st.title("Análise de dado usando AI")
 
