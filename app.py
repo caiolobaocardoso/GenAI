@@ -1,5 +1,6 @@
 import streamlit as st
 import seaborn as sns
+import matplotlib.pyplot as plt
 from langchain_anthropic import ChatAnthropic
 from pandasai import SmartDataframe
 import pandas as pd
@@ -18,7 +19,7 @@ def base_64_backgroung(background):
 def process_dataframe(df):
     return df.astype(str)
 
-# Configura o plano de fundo do strealit
+# Configura o plano de fundo do streamlit
 def set_background(png_file):
     bin_str = base_64_backgroung(png_file)
     page_bg_img = '''
@@ -74,8 +75,9 @@ st.markdown("<h1 class='main-title'>Análise de dados usando IA</h1>", unsafe_al
 # Colunas
 col1, col2 = st.columns([1, 3])
 
-with col1:
-    st.markdown("### Seleção de dados")
+# Sidebar - Seção de controle do dataset e tipo de gráfico
+with st.sidebar:
+    st.markdown("### Configurações")
     dataset_option = st.radio(
         "Escolha uma base de dados:",
         ("Faça um upload", "Penguins", "Iris", "Titanic")
@@ -104,11 +106,62 @@ with col1:
         data = sns.load_dataset(dataset_option.lower())
         data = process_dataframe(data)
 
+    # Escolha do tipo de gráfico
+    if data is not None:
+        grafico_opcao = st.selectbox(
+            "Escolha o tipo de gráfico",
+            ("Selecione", "Gráfico de Barras", "Gráfico de Dispersão", "Gráfico de Linha", "Histograma", "Boxplot")
+        )
+
+        # Mostrar as opções de colunas de acordo com o gráfico escolhido
+        if grafico_opcao == "Gráfico de Barras" or grafico_opcao == "Gráfico de Dispersão" or grafico_opcao == "Gráfico de Linha":
+            coluna_x = st.selectbox("Selecione a coluna para o eixo X", data.columns.tolist())
+            coluna_y = st.selectbox("Selecione a coluna para o eixo Y", data.columns.tolist())
+        elif grafico_opcao == "Histograma" or grafico_opcao == "Boxplot":
+            coluna = st.selectbox("Selecione a coluna", data.columns.tolist())
+        else:
+            coluna_x, coluna_y, coluna = None, None, None
+
+        if st.button("Gerar Gráfico"):
+            with col2:
+                # Geração dos gráficos com base no tipo selecionado
+                if grafico_opcao == "Gráfico de Barras":
+                    st.markdown("### Gráfico de Barras")
+                    plt.figure(figsize=(10, 6))
+                    sns.barplot(x=data[coluna_x], y=data[coluna_y])
+                    st.pyplot(plt)
+
+                elif grafico_opcao == "Gráfico de Dispersão":
+                    st.markdown("### Gráfico de Dispersão")
+                    plt.figure(figsize=(10, 6))
+                    sns.scatterplot(x=data[coluna_x], y=data[coluna_y])
+                    st.pyplot(plt)
+
+                elif grafico_opcao == "Gráfico de Linha":
+                    st.markdown("### Gráfico de Linha")
+                    plt.figure(figsize=(10, 6))
+                    sns.lineplot(x=data[coluna_x], y=data[coluna_y])
+                    st.pyplot(plt)
+
+                elif grafico_opcao == "Histograma":
+                    st.markdown("### Histograma")
+                    plt.figure(figsize=(10, 6))
+                    sns.histplot(data[coluna])
+                    st.pyplot(plt)
+
+                elif grafico_opcao == "Boxplot":
+                    st.markdown("### Boxplot")
+                    plt.figure(figsize=(10, 6))
+                    sns.boxplot(x=data[coluna])
+                    st.pyplot(plt)
+
+# Interação com IA via prompts
 with col2:
     if data is not None:
         st.markdown("### Preview dos Dados")
         st.dataframe(data.head(5), use_container_width=True)
 
+        # Configuração do modelo LLM
         model = ChatAnthropic(model="claude-3-haiku-20240307")
         df = SmartDataframe(data, config={"llm": model})
 
